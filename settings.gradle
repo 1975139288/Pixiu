@@ -1,0 +1,4 @@
+rootProject.name = "Pixiu"
+include ':app'
+include ':common'
+include ':pay'

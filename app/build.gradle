@@ -1,0 +1,77 @@
+import pixiu.Deps
+
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+static def gitVersionCode() {
+    def cmd = 'git rev-list HEAD --first-parent --count'
+    cmd.execute().text.trim().toInteger()
+}
+
+static def gitVersionTag() {
+    def cmd = 'git describe --tags'
+    def version = cmd.execute().text.trim()
+
+    def pattern = "-(\\d+)-g"
+    def matcher = version =~ pattern
+
+    if (matcher) {
+        version = version.substring(0, matcher.start()) + "." + matcher[0][1]
+    }
+    return version
+}
+
+android {
+    compileSdkVersion Deps.Config.compileSdkVersion
+    buildToolsVersion Deps.Config.buildToolsVersion
+
+    defaultConfig {
+        applicationId Deps.Config.applicationId
+        minSdkVersion Deps.Config.minSdkVersion
+        targetSdkVersion Deps.Config.targetSdkVersion
+        versionCode Deps.Config.versionCode
+        versionName Deps.Config.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+//    applicationVariants.all { variant ->
+//        variant.outputs.each { output ->
+//            output.versionCodeOverride = gitVersionCode()
+//            output.versionNameOverride = gitVersionTag()
+//        }
+//    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation project(path: ':common')
+
+    //hilt
+    implementation Deps.Jetpack.Hilt.hiltAndroid
+    kapt Deps.Jetpack.Hilt.hiltAndroidCompiler
+    kapt Deps.Jetpack.Hilt.hiltCompiler
+    //Moshi
+    kapt Deps.Json.moshi_codegen
+    //DataBase
+    kapt Deps.Jetpack.Room.compiler
+}
