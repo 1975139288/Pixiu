@@ -37,6 +37,7 @@ android {
         versionName Deps.Config.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -46,12 +47,12 @@ android {
         }
     }
 
-//    applicationVariants.all { variant ->
-//        variant.outputs.each { output ->
-//            output.versionCodeOverride = gitVersionCode()
-//            output.versionNameOverride = gitVersionTag()
-//        }
-//    }
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.versionCodeOverride = gitVersionCode()
+            output.versionNameOverride = gitVersionTag()
+        }
+    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -60,6 +61,23 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    kapt {
+        arguments {
+            arg("AROUTER_MODULE_NAME", project.getName())
+        }
+        javacOptions {
+            // These options are normally set automatically via the Hilt Gradle plugin, but we
+            // set them manually to workaround a bug in the Kotlin 1.5.20
+            option("-Adagger.fastInit=ENABLED")
+            option("-Adagger.hilt.android.internal.disableAndroidSuperclassValidation=true")
+        }
+
     }
 }
 
@@ -71,7 +89,10 @@ dependencies {
     kapt Deps.Jetpack.Hilt.hiltAndroidCompiler
     kapt Deps.Jetpack.Hilt.hiltCompiler
     //Moshi
-    kapt Deps.Json.moshi_codegen
+    kapt Deps.Json.moshiCodegen
     //DataBase
-    kapt Deps.Jetpack.Room.compiler
+    kapt Deps.Jetpack.Room.roomCompiler
+    //Router
+    implementation Deps.Router.arouterApi
+    kapt Deps.Router.arouterCompiler
 }

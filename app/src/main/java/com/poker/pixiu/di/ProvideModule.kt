@@ -1,7 +1,12 @@
-package com.poker.pixiu.app
+package com.poker.pixiu.di
 
 import android.content.Context
 import androidx.room.Room
+import com.poker.common.network.converter.RetroMoshiConverterFactory
+import com.poker.pixiu.app.AppDatabase
+import com.poker.pixiu.app.bean.DataWrapper
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,29 +15,41 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
  * @Author: pokerfaceCmy
- * @Date: 2021/6/15 17:37
+ * @Date: 2021/7/7 13:28
  * @Desc: TODO
  * @GitHub：https://github.com/pokerfaceCmy
  */
-
-private const val BASE_URL = ""
+private const val BASE_URL = "https://www.wanandroid.com"
 
 //过期时间 单位秒
-private const val TIMEOUT = 60L
+private const val TIMEOUT = 30L
 
 //数据库名称
 private const val DATABASE_NAME = "PIXIU.db"
 
+
+@Module
+@InstallIn(SingletonComponent::class)
+object JsonModule {
+
+    @Provides
+    @Singleton
+    fun provideMoshi(): Moshi {
+        return Moshi.Builder()
+            .addLast(KotlinJsonAdapterFactory())
+            .build()
+    }
+
+}
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetWorkModule {
-
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
@@ -50,18 +67,21 @@ object NetWorkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl(BASE_URL)
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(RetroMoshiConverterFactory.create(moshi, DataWrapper::class.java))
+//            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
     }
+
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
 object DataBaseModule {
+
     @Provides
     @Singleton
     fun provideAppDataBase(

@@ -26,12 +26,24 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    kapt {
+        arguments {
+            arg("AROUTER_MODULE_NAME", project.getName())
+        }
     }
 }
 
@@ -52,13 +64,39 @@ dependencies {
     api Deps.Retrofit.converter_moshi
     //Json
     api Deps.Json.moshi
-    kapt Deps.Json.moshi_codegen
+    api Deps.Json.moshiKotlin
+    kapt Deps.Json.moshiCodegen
     //DataBase
     api Deps.Jetpack.Room.ktx
     api Deps.Jetpack.Room.runtime
-    kapt Deps.Jetpack.Room.compiler
+    kapt Deps.Jetpack.Room.roomCompiler
+    //coroutines
+    api Deps.Kotlin.Coroutines.coroutines
+    //viewmodel
+    api Deps.Jetpack.Viewmodel.viewmodelKtx
+    api Deps.Jetpack.Viewmodel.runtime
+    api Deps.Jetpack.Viewmodel.hilt
+    //livedata
+    api Deps.Jetpack.Livedata.core
+    api Deps.Jetpack.Livedata.livedataKtx
+    //hilt
+    implementation Deps.Jetpack.Hilt.hiltAndroid
+    kapt Deps.Jetpack.Hilt.hiltAndroidCompiler
+    kapt Deps.Jetpack.Hilt.hiltCompiler
+    //Router
+    implementation Deps.Router.arouterApi
+    kapt Deps.Router.arouterCompiler
+    //动画
+    api Deps.Lottie.lottie
     //image
     api Deps.Image.coil
-    //屏幕适配
+    //Log
+    api Deps.Log.timber
+    api Deps.Log.logger
+
     api Deps.Util.autosize
+    api Deps.Util.statusBarUtil
+    api Deps.Util.xPopup
+    api Deps.Util.utilcode
+    api Deps.Util.baseRecyclerViewAdapterHelper
 }
